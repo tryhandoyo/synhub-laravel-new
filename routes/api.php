@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\BayarController;
+use App\Http\Controllers\customer\PesananController;
 use App\Http\Controllers\ProdukController;
 
 /*
@@ -26,3 +27,4 @@ Route::resource('/users', UserController::class);
 Route::resource('/banner', BannerController::class);
 Route::resource('/produk', ProdukController::class);
 Route::resource('/bayar', BayarController::class);
+Route::post('/pesanan', [PesananController::class, 'store']);

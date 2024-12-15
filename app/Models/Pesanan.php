@@ -12,10 +12,7 @@ class Pesanan extends Model
     protected $table = 'pesanan';
 
     protected $guarded = [
-        'id',
-        'user_id',
-        'produk_id',
-        'bayar_id',
+        'id'
     ];
 
     public function users() {
