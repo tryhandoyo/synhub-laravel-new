@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produk;
-use APP\Models\Fasilitas;
+use App\Models\Fasilitas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ProdukController extends Controller
 {
@@ -32,26 +34,63 @@ class ProdukController extends Controller
     public function store(Request $request)
     {
         //
-        $produk = Produk::create([
-            'judul_pendek' => $request->judul_pendek,
-            'slug' => $request->slug,
-            'judul_panjang' => $request->judul_panjang,
-            'subjudul' => $request->subjudul,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $request->foto,
-            'harga' => $request->harga,
-            'satuan' => $request->satuan,
-            'fasilitas' => $request->fasilitas,
+        $validation = Validator::make($request->all(), [
+            'judul_pendek' => 'required',
+            'judul_panjang' => 'required',
+            'subjudul' => 'required',
+            'deskripsi' => 'required',
+            'foto' => 'required|mimes:jpg,png,jpeg,JPEG,JPG|image|max:2000',
+            'harga' => 'required',
+            'satuan' => 'required',
+            'fasilitas' => 'required',
+        ], [
+            'judul_pendek.required' => 'silahkan masukkan judul pendek',
+            'judul_panjang.required' => 'silahkan masukkan judul panjang',
+            'subjudul.required' => 'silahkan masukkan subjudul',
+            'deskripsi.required' => 'silahkan masukkan deskripsi',
+            'foto.required' => 'silahkan masukkan foto',
+            'foto.mimes' => 'format foto tidak sesuai',
+            'foto.image' => 'format foto tidak sesuai',
+            'foto.max' => 'ukuran foto maximal 2MB',
+            'harga.required' => 'silahkan masukkan harga',
+            'satuan.required' => 'silahkan masukkan satuan',
+            'fasilitas.required' => 'silahkan masukkan fasilitas',
         ]);
 
-        Fasilitas::create([
-            'produk_id' => $produk->id,
-            'kategori' => $produk->kategori,
-        ]);
+        if ($validation->fails()) {
+            return response()->json($validation->errors(), 422);
+        } else {
+            // return $request->fasilitas;
 
-        return response()->json(data : [
-            'message' => 'Selamat Anda Berhasil Mengupload Data'
-        ], status: 201);
+            $foto = $request->file('foto');
+            $foto->storeAs('public/produk', $foto->hashName());
+
+            $produk = Produk::create([
+                'judul_pendek'  => $request->judul_pendek,
+                'slug'          => Str::slug($request->judul_pendek, '-'),
+                'judul_panjang' => $request->judul_panjang,
+                'subjudul'      => $request->subjudul,
+                'deskripsi'     => $request->deskripsi,
+                'foto'          => $foto->hashName(),
+                'harga'         => $request->harga,
+                'satuan'        => $request->satuan,
+            ]);
+            // return $produk->id;
+
+            // cara memanggil variable ketik nama variable $produk->id(yang mau dipanggil)
+            foreach ($request->fasilitas as $item) {
+                Fasilitas::create([
+                    'produk_id' => $produk->id,
+                    'keterangan' => $item,
+                ]);
+            }
+
+
+
+            return response()->json(data: [
+                'message' => 'Selamat Anda Berhasil Mengupload Data'
+            ], status: 201);
+        }
     }
 
     /**
@@ -93,7 +132,7 @@ class ProdukController extends Controller
         //     'kategori' => $produk->kategori,
         // ]);
 
-        return response()->json(data : [
+        return response()->json(data: [
             'message' => 'Data Berhasil di Update'
         ], status: 202);
     }

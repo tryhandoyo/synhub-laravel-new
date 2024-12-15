@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('foto');
             $table->decimal('harga');
             $table->enum('satuan',['jam','hari']);
-            $table->string('fasilitas');
             $table->timestamps();
         });
     }

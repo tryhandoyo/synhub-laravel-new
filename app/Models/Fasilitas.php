@@ -11,8 +11,8 @@ class Fasilitas extends Model
 
     protected $table = 'fasilitas';
 
-    protected $fillable = [
-        'keterangan'
+    protected $guarded = [
+        'id'
     ];
 
     public function produk() {

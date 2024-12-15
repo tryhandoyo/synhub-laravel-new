@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
-use App\Models\Fasilitas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class BannerController extends Controller
 {
@@ -40,23 +40,52 @@ class BannerController extends Controller
     {   
         // return $request->garpu;
         //
-        Banner::create([
-            'judul' => $request->judul,
-            'subjudul' => $request->subjudul,
-            'foto' => $request->foto,
-            'posisi' => $request->posisi,
-            'status' => $request->status
+        $validation = Validator::make($request->all(), [
+            'judul' => 'required|max:100|min:10',
+            'subjudul' => 'required|max:200|min:10',
+            'foto' => 'required|mimes:jpg,png,jpeg,JPEG,JPG|image|max:2000',
+            'posisi' => 'required|in:1,2,3,4',
+            'status' => 'required|in:y,n',
+
+        ],[
+            'judul.required' => 'silahkan masukkan judul',
+            'judul.max' => 'maksimal karakter 100',
+            'judul.min' => 'minimal karakter 10',
+            'subjudul.required' => 'silahkan masukkan subjudul',
+            'subjudul.max' => 'maksimal karakter 200',
+            'subjudul.min' => 'minimal karakter 10',
+            'foto.required' => 'silahkan upload foto',
+            'foto.mimes' => 'format foto tidak sesuai',
+            'foto.image' => 'format foto tidak sesuai',
+            'foto.max' => 'ukuran foto maximal 2MB',
+            'posisi.required' => 'maaf posisi tidak valid', 
+            'posisi.in' => 'maaf posisi tidak valid',
+            'status.required' => 'maaf status tidak valid', 
+            'status.in' => 'maaf status tidak valid', 
         ]);
 
-        // Fasilitas::create([
-        //     'produk_id' => $produk->id,
-        //     'kategori' => $produk->kategori,
-        // ]);
+        if ($validation->fails()){
+            return response()->json($validation->errors(), 422);
+        }
+        else {
+            $foto = $request->file('foto');
+            $foto->storeAs('public/banner',$foto->hashName());
 
-        return response()->json(data : [
-            'message' => 'Selamat Anda Berhasil Mengupload Data'
-        ], status: 201);
+            Banner::create([
+                'judul' => $request->judul,
+                'subjudul' => $request->subjudul,
+                'foto' => $foto->hashName(),
+                'posisi' => $request->posisi,
+                'status' => $request->status
+            ]);
+    
+            return response()->json(data : [
+                'message' => 'Selamat Anda Berhasil Mengupload Data'
+            ], status: 201);
+            
+        }
     }
+
 
     /**
      * Display the specified resource.
