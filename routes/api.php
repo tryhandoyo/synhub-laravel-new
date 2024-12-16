@@ -28,3 +28,5 @@ Route::resource('/banner', BannerController::class);
 Route::resource('/produk', ProdukController::class);
 Route::resource('/bayar', BayarController::class);
 Route::post('/pesanan', [PesananController::class, 'store']);
+Route::get('/pesanan', [PesananController::class, 'index']);
+Route::post('/upload-bukti-bayar', [PesananController::class, 'update']);

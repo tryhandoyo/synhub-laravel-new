@@ -84,9 +84,6 @@ class ProdukController extends Controller
                     'keterangan' => $item,
                 ]);
             }
-
-
-
             return response()->json(data: [
                 'message' => 'Selamat Anda Berhasil Mengupload Data'
             ], status: 201);
@@ -132,9 +129,9 @@ class ProdukController extends Controller
         //     'kategori' => $produk->kategori,
         // ]);
 
-        return response()->json(data: [
+        return response()->json([
             'message' => 'Data Berhasil di Update'
-        ], status: 202);
+        ], 202);
     }
 
     /**

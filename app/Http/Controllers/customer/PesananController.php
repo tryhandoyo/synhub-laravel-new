@@ -18,6 +18,8 @@ class PesananController extends Controller
     public function index()
     {
         //
+        // $pesanan = Pesanan::select('')->get();
+        // return $pesanan;
     }
 
     /**
@@ -136,9 +138,48 @@ class PesananController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Pesanan $pesanan)
+    public function update(Request $request)
     {
         //
+        // return $request;
+        $validation = Validator::make($request->all(),[
+            'kode_pesanan'  =>  'required',
+            'foto'  =>  'required|image|mimes:jpg,png,jpeg,JPEG,JPG|image|max:2000',
+        ],[
+            'kode_pesanan.required' => 'kode pesanan tidak ada',
+            'foto.required' => 'silahkan masukkan foto',
+            'foto.mimes' => 'format foto tidak sesuai',
+            'foto.image' => 'format foto tidak sesuai',
+            'foto.max' => 'ukuran foto maximal 2MB',
+        ]);
+
+        if($validation->fails()){
+            return response()->json($validation->errors(), 422);
+        }
+
+        else {
+            $pesanan = Pesanan::where('kode_pesanan', $request->kode_pesanan)->first();
+
+            if(!$pesanan){
+                return response()->json($validation->errors(), 422);
+            }
+            else {
+                $foto = $request->file('foto');
+                $foto->storeAs('public/bukti', $foto->hashName());
+                
+                $pesanan->update([
+                    'bukti' => $foto->hashName(),
+                    'status' => 2
+                ]);
+
+                return response()->json([
+                    'message' => 'Bukti Berhasil Di Upload, Silahkan Tunggu Konfirmasi Admin'
+                ], 202);
+            }
+            
+        }
+        
+
     }
 
     /**

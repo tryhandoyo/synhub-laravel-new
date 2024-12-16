@@ -21,7 +21,8 @@ class BannerController extends Controller
         //     'foto',
         //     'posisi',
         //     'status')->get();
-        $banner = Banner::all();
+        // $banner = Banner::All();
+        $banner = Banner::paginate(5);
         return $banner;
     }
 
