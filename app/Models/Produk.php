@@ -16,6 +16,7 @@ class Produk extends Model
     ];
 
     public function fasilitas() {
+        // one to many
         return $this -> hasMany(Fasilitas::class);
     }
 

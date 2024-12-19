@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bayar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class BayarController extends Controller
 {
@@ -13,7 +14,8 @@ class BayarController extends Controller
     public function index()
     {
         //
-        $bayar = Bayar::all();
+        // $bayar = Bayar::all();
+        $bayar = Bayar::paginate(5);
         return $bayar;
     }
 
@@ -31,17 +33,44 @@ class BayarController extends Controller
     public function store(Request $request)
     {
         //
-        Bayar::create([
-            'nama_orang' => $request->nama_orang,
-            'nama_pembayaran' => $request->nama_pembayaran,
-            'nomor_rekening' => $request->nomor_rekening,
-            'logo' => $request->logo,
-            'status' => $request->status,
+        $validation = Validator::make($request->all(),[
+            'nama_orang'        => 'required',
+            'nama_pembayaran'   => 'required',
+            'nomor_rekening'    => 'required',
+            'logo'              => 'required|image|mimes:jpg,png,jpeg,JPEG,JPG|max:2000',
+            'status'            => 'required|in:y,n',
+
+        ],[
+            'nama_orang.required'       => 'Silahkan Masukkan Nama Pemilik Rekening',
+            'nama_pembayaran.required'  => 'Silahkan Masukkan Nama Pembayaran',
+            'nomor_rekening.required'   => 'Silahkan Masukkan Nomor Rekening',
+            'logo.required'             => 'Silahkan Upload Logo',
+            'logo.mimes'                => 'Format Logo Tidak Sesuai',
+            'logo.image'                => 'Format Logo Tidak Sesuai',
+            'logo.max'                  => 'Ukuran Logo Maximal 2MB',
+            'status.required'           => 'maaf status tidak valid', 
+            'status.in'                 => 'maaf status tidak valid', 
         ]);
 
-        return response()->json(data : [
-            'message' => 'Selamat Anda Berhasil Mengupload Data'
-        ], status: 201);
+        if ($validation->fails()){
+            return response()->json($validation->errors(), 422);
+        }
+        else {
+            $foto = $request->file('logo');
+            $foto->storeAs('public/bayar', $foto->hashName());
+
+            Bayar::create([
+                'nama_orang' => $request->nama_orang,
+                'nama_pembayaran' => $request->nama_pembayaran,
+                'nomor_rekening' => $request->nomor_rekening,
+                'logo' => $foto->hashName(),
+                'status' => $request->status,
+            ]);
+    
+            return response()->json(data : [
+                'message' => 'Selamat Anda Berhasil Mengupload Data'
+            ], status: 201);
+        }
     }
 
     /**
@@ -67,17 +96,45 @@ class BayarController extends Controller
     public function update(Request $request, Bayar $bayar)
     {
         //
-        $bayar->update([
-            'nama_orang' => $request->nama_orang,
-            'nama_pembayaran' => $request->nama_pembayaran,
-            'nomor_rekening' => $request->nomor_rekening,
-            'logo' => $request->logo,
-            'status' => $request->status,
+        $validation = Validator::make($request->all(),[
+            'nama_orang'        => 'required',
+            'nama_pembayaran'   => 'required',
+            'nomor_rekening'    => 'required|integer',
+            'logo'              => 'required|image|mimes:jpg,png,jpeg,JPEG,JPG|max:2000',
+            'status'            => 'required|in:y,n',
+
+        ],[
+            'nama_orang.required'       => 'Silahkan Masukkan Nama Pemilik Rekening',
+            'nama_pembayaran.required'  => 'Silahkan Masukkan Nama Pembayaran',
+            'nomor_rekening.required'   => 'Silahkan Masukkan Nomor Rekening',
+            'nomor_rekening.integer'    => 'Nomor Rekening Berupa Angka',
+            'logo.required'             => 'Silahkan Upload Logo',
+            'logo.mimes'                => 'Format Logo Tidak Sesuai',
+            'logo.image'                => 'Format Logo Tidak Sesuai',
+            'logo.max'                  => 'Ukuran Logo Maximal 2MB',
+            'status.required'           => 'maaf status tidak valid', 
+            'status.in'                 => 'maaf status tidak valid', 
         ]);
 
-        return response()->json(data : [
-            'message' => 'Data Berhasil di Update'
-        ], status: 202);
+        if ($validation->fails()){
+            return response()->json($validation->errors(), 422);
+        }
+        else {
+            $foto = $request->file('logo');
+            $foto->storeAs('public/bayar', $foto->hashName());
+
+            $bayar->update([
+                'nama_orang' => $request->nama_orang,
+                'nama_pembayaran' => $request->nama_pembayaran,
+                'nomor_rekening' => $request->nomor_rekening,
+                'logo' => $foto->hashName(),
+                'status' => $request->status,
+            ]);
+    
+            return response()->json([
+                'message' => 'Data Berhasil Update'
+            ], 202);
+        }
     }
 
     /**

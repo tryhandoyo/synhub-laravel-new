@@ -57,15 +57,19 @@ class ProdukController extends Controller
             'fasilitas.required' => 'silahkan masukkan fasilitas',
         ]);
 
+        // dd('debug');
+
         if ($validation->fails()) {
             return response()->json($validation->errors(), 422);
         } else {
             // return $request->fasilitas;
+            
 
             $foto = $request->file('foto');
             $foto->storeAs('public/produk', $foto->hashName());
 
             $produk = Produk::create([
+                // 'Kolom'      =>  isi
                 'judul_pendek'  => $request->judul_pendek,
                 'slug'          => Str::slug($request->judul_pendek, '-'),
                 'judul_panjang' => $request->judul_panjang,
@@ -96,7 +100,16 @@ class ProdukController extends Controller
     public function show(Produk $produk)
     {
         //
+        // dd("debug");
         return $produk;
+    }
+
+    public function showAll()
+    {
+        //
+        $produk = Produk::with('fasilitas')->get();
+        return $produk;
+        
     }
 
     /**

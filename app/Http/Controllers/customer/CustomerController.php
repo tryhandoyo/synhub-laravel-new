@@ -189,10 +189,5 @@ class PesananController extends Controller
     public function destroy(Pesanan $pesanan)
     {
         //
-        $pesanan->delete();
-
-        return response()->json([
-            'message'   => 'Data Berhasil di Hapus'
-        ], 202);
     }
 }

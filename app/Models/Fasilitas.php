@@ -16,6 +16,7 @@ class Fasilitas extends Model
     ];
 
     public function produk() {
+        // many to one
         return $this -> belongsTo(Produk::class);
     }
 }

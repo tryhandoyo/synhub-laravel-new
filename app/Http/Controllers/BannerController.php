@@ -111,17 +111,50 @@ class BannerController extends Controller
     public function update(Request $request, Banner $banner)
     {
         //
-        $banner->update([
-            'judul' => $request->judul,
-            'subjudul' => $request->subjudul,
-            'foto' => $request->foto,
-            'posisi' => $request->posisi,
-            'status' => $request->status
+        $$validation = Validator::make($request->all(), [
+            'judul' => 'required|max:100|min:10',
+            'subjudul' => 'required|max:200|min:10',
+            'foto' => 'required|mimes:jpg,png,jpeg,JPEG,JPG|image|max:2000',
+            'posisi' => 'required|in:1,2,3,4',
+            'status' => 'required|in:y,n',
+
+        ],[
+            'judul.required' => 'silahkan masukkan judul',
+            'judul.max' => 'maksimal karakter 100',
+            'judul.min' => 'minimal karakter 10',
+            'subjudul.required' => 'silahkan masukkan subjudul',
+            'subjudul.max' => 'maksimal karakter 200',
+            'subjudul.min' => 'minimal karakter 10',
+            'foto.required' => 'silahkan upload foto',
+            'foto.mimes' => 'format foto tidak sesuai',
+            'foto.image' => 'format foto tidak sesuai',
+            'foto.max' => 'ukuran foto maximal 2MB',
+            'posisi.required' => 'maaf posisi tidak valid', 
+            'posisi.in' => 'maaf posisi tidak valid',
+            'status.required' => 'maaf status tidak valid', 
+            'status.in' => 'maaf status tidak valid', 
         ]);
 
-        return response()->json(data : [
-            'message' => 'Data Berhasil di Update'
-        ], status: 202);
+        if ($validation->fails()){
+            return response()->json($validation->errors(), 422);
+        }
+        else {
+            $foto = $request->file('foto');
+            $foto->storeAs('public/banner',$foto->hashName());
+
+            $banner->update([
+                'judul' => $request->judul,
+                'subjudul' => $request->subjudul,
+                'foto' => $foto->hashName(),
+                'posisi' => $request->posisi,
+                'status' => $request->status,
+            ]);
+    
+            return response()->json([
+                'message' => 'Data Berhasil di Update'
+            ], 202);
+            
+        }
     }
 
     /**
