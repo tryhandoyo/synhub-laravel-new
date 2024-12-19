@@ -20,17 +20,6 @@ class ProdukController extends Controller
         return $produk;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    // public function create()
-    // {
-    //     //
-    // }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
@@ -63,7 +52,7 @@ class ProdukController extends Controller
             return response()->json($validation->errors(), 422);
         } else {
             // return $request->fasilitas;
-            
+
 
             $foto = $request->file('foto');
             $foto->storeAs('public/produk', $foto->hashName());
@@ -100,7 +89,6 @@ class ProdukController extends Controller
     public function show(Produk $produk)
     {
         //
-        // dd("debug");
         return $produk;
     }
 
@@ -109,16 +97,7 @@ class ProdukController extends Controller
         //
         $produk = Produk::with('fasilitas')->get();
         return $produk;
-        
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit(Produk $produk)
-    // {
-    //     //
-    // }
 
     /**
      * Update the specified resource in storage.
@@ -126,25 +105,71 @@ class ProdukController extends Controller
     public function update(Request $request, Produk $produk)
     {
         //
-        $produk->update([
-            'judul_pendek' => $request->judul_pendek,
-            'slug' => $request->slug,
-            'judul_panjang' => $request->judul_panjang,
-            'subjudul' => $request->subjudul,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $request->foto,
-            'harga' => $request->harga,
-            'satuan' => $request->satuan,
+        $validation = Validator::make($request->all(), [
+            'judul_pendek' => 'required',
+            'judul_panjang' => 'required',
+            'subjudul' => 'required',
+            'deskripsi' => 'required',
+            'foto' => 'required|mimes:jpg,png,jpeg,JPEG,JPG|image|max:2000',
+            'harga' => 'required',
+            'satuan' => 'required',
+            'fasilitas' => 'required',
+        ], [
+            'judul_pendek.required' => 'silahkan masukkan judul pendek',
+            'judul_panjang.required' => 'silahkan masukkan judul panjang',
+            'subjudul.required' => 'silahkan masukkan subjudul',
+            'deskripsi.required' => 'silahkan masukkan deskripsi',
+            'foto.required' => 'silahkan masukkan foto',
+            'foto.mimes' => 'format foto tidak sesuai',
+            'foto.image' => 'format foto tidak sesuai',
+            'foto.max' => 'ukuran foto maximal 2MB',
+            'harga.required' => 'silahkan masukkan harga',
+            'satuan.required' => 'silahkan masukkan satuan',
+            'fasilitas.required' => 'silahkan masukkan fasilitas',
         ]);
 
-        // Fasilitas::where('id',1)->update([
-        //     'produk_id' => $produk->id,
-        //     'kategori' => $produk->kategori,
-        // ]);
+        if ($validation->fails()) {
+            return response()->json($validation->errors(), 422);
+        } else {
 
-        return response()->json([
-            'message' => 'Data Berhasil di Update'
-        ], 202);
+            $foto = $request->file('foto');
+            $foto->storeAs('public/produk', $foto->hashName());
+
+            $produk->update([
+                // 'Kolom'      =>  isi
+                'judul_pendek'  => $request->judul_pendek,
+                'slug'          => Str::slug($request->judul_pendek, '-'),
+                'judul_panjang' => $request->judul_panjang,
+                'subjudul'      => $request->subjudul,
+                'deskripsi'     => $request->deskripsi,
+                'foto'          => $foto->hashName(),
+                'harga'         => $request->harga,
+                'satuan'        => $request->satuan,
+            ]);
+
+            // cara memanggil variable ketik nama variable $produk->id(yang mau dipanggil)
+            foreach ($request->fasilitas as $item) {
+                $fasilitas = Fasilitas::where('produk_id', $produk->id)
+                                        ->where('keterangan', $item)
+                                        ->first();
+
+                // Jika fasilitas ditemukan, lakukan update
+                if ($fasilitas) {
+                    $fasilitas->update([
+                        'keterangan' => $item, // atau perubahan lain jika diperlukan
+                    ]);
+                } else {
+                    // Jika fasilitas tidak ditemukan, lakukan create
+                    Fasilitas::create([
+                        'produk_id' => $produk->id,
+                        'keterangan' => $item,
+                    ]);
+                }
+            }
+            return response()->json([
+                'message' => 'Data Berhasil di Update'
+            ], 202);
+        }
     }
 
     /**
