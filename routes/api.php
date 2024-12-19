@@ -43,6 +43,8 @@ Route::put('/bayar/{bayar}', [BayarController::class, 'update']);
 Route::delete('/bayar/{bayar}', [BayarController::class, 'destroy']);
 Route::get('/pesanan', [AdminController::class, 'index']);
 Route::get('/pesanan/{pesanan}', [AdminController::class, 'show']);
+Route::post('/ubah-status-pesanan', [AdminController::class, 'update']);
+
 
 // Customer
 Route::post('/customer/pesanan', [PesananController::class, 'store']);
