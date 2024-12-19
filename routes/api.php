@@ -45,7 +45,6 @@ Route::get('/pesanan', [AdminController::class, 'index']);
 Route::get('/pesanan/{pesanan}', [AdminController::class, 'show']);
 
 // Customer
-
 Route::post('/customer/pesanan', [PesananController::class, 'store']);
 Route::post('/upload-bukti-bayar', [PesananController::class, 'update']);
 Route::get('/customer/banner', [CustomerController::class, 'indexBanner']);
