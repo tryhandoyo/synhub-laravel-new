@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -53,5 +54,8 @@ Route::get('/customer/banner', [CustomerController::class, 'indexBanner']);
 Route::get('/customer/produk', [CustomerController::class, 'indexProduk']);
 Route::get('/customer/produk/{produk}', [CustomerController::class, 'indexProdukShow']);
 Route::get('/customer/bayar', [CustomerController::class, 'indexBayar']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/ubah-status-customer/{id}', [UserController::class, 'update']);
 
 

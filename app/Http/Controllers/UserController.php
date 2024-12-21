@@ -13,74 +13,40 @@ class UserController extends Controller
     public function index()
     {
         //
-        $user = User::select(
-            'id',
-            'name',
-            'phone',
-            'email',
-            'role')->get();
+        $user = User::where('role', 'customer')->paginate(10);
         return $user;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    // public function create()
-    // {
-    //     //
-    // }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-        User::create([
-            'name' => 'Akbar Kuy',
-            'phone' => '088282822828',
-            'email' => 'akbarkuy@gmail.com',
-            'password' => 'akbarkuy@gmail.com',
-        ]);
-
-        return response()->json(data : [
-            'message' => 'Selamat Anda Berhasil Mendaftar'
-        ], status: 201);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        //
-        return $user;
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit(User $user)
-    // {
-    //     //
-    // }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update($id)
     {
         //
-        $user->update([
-            'name' => 'Usman bin Skuy',
-            'phone' => '088282829898',
-            'email' => 'usmankuy@gmail.com',
-            'password' => 'usmankuy@gmail.com',
-        ]);
+        $user = User::whereId($id)->first();
+        if (!$user) {
+            return response()->json([
+                'message'   => 'Maaf Customer Tidak Valid',
+            ], 422);
+        } else {
+            // return $user;
+            if ($user->status == 'y') {
 
-        return response()->json(data : [
-            'message' => 'Data Berhasil di Update'
-        ], status: 202);
+                $user->update([
+                    'status'    => 'n',
+                ]);
+                
+            }else{
+                $user->update([
+                    'status'    => 'y',
+                ]);
+            }
+
+            return response()->json([
+                'message'   => 'Status Customer Berhasil di ubah'
+            ], 202);
+        }
     }
 
     /**
