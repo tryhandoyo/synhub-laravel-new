@@ -33,9 +33,19 @@ class CustomerController extends Controller
     }
     public function indexProdukShow(Produk $produk)
     {
-        // //get data produk
-        // $produk = Produk::with('fasilitas')->find(id);
-        return $produk;
+        if (!$produk) {
+            return response()->json([
+                'message' => 'Produk tidak ditemukan'
+            ], 422);
+        }
+
+        // Memuat fasilitas terkait
+        $produk->load('fasilitas');
+
+        return response()->json([
+            'message' => 'Data produk berhasil ditemukan',
+            'data'    => $produk
+        ], 201);
     }
 
     public function indexBayar()

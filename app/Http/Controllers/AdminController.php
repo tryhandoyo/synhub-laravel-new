@@ -29,7 +29,7 @@ class AdminController extends Controller
         $validation = Validator::make($request->all(),[
             'kode_pesanan'  => 'required',
             'foto'          => 'required|image|mimes:jpg,png,jpeg,JPEG,JPG|image|max:2000',
-            'status'        => 'required|in:3,4',
+            'status'        => 'required|in:3',
         ],[
             'kode_pesanan.required' => 'kode pesanan tidak ada',
             'foto.required'         => 'silahkan masukkan foto',
