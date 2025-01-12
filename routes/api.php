@@ -26,36 +26,38 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Admin
-Route::resource('/users', UserController::class);
-Route::resource('/banner', BannerController::class);
-// Route::resource('/produk', ProdukController::class);
-Route::post('/produk', [ProdukController::class, 'store']);
-Route::get('/produk', [ProdukController::class, 'index']);
-Route::get('/produk/all', [ProdukController::class, 'showAll']);
-Route::get('/produk/{produk}', [ProdukController::class, 'show']);
-Route::post('/produk/{produk}', [ProdukController::class, 'update']);
-Route::delete('/produk/{produk}', [ProdukController::class, 'destroy']);
-Route::resource('/bayar', BayarController::class);
-Route::post('/bayar', [BayarController::class, 'store']);
-Route::get('/bayar', [BayarController::class, 'index']);
-Route::get('/bayar/{bayar}', [BayarController::class, 'show']);
-Route::put('/bayar/{bayar}', [BayarController::class, 'update']);
-Route::delete('/bayar/{bayar}', [BayarController::class, 'destroy']);
-Route::get('/pesanan', [AdminController::class, 'index']);
-Route::get('/pesanan/{pesanan}', [AdminController::class, 'show']);
-Route::post('/ubah-status-pesanan', [AdminController::class, 'update']);
-
-
-// Customer
-Route::post('/customer/pesanan', [PesananController::class, 'store']);
-Route::post('/upload-bukti-bayar', [PesananController::class, 'update']);
-Route::get('/customer/banner', [CustomerController::class, 'indexBanner']);
-Route::get('/customer/produk', [CustomerController::class, 'indexProduk']);
-Route::get('/customer/produk/{produk}', [CustomerController::class, 'indexProdukShow']);
-Route::get('/customer/bayar', [CustomerController::class, 'indexBayar']);
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/ubah-status-customer/{id}', [UserController::class, 'update']);
 
+Route::prefix('customer')->group(function () {
+    // Customer
+    Route::post('/register', [AuthController::class, 'register'], ['as', 'customer']);
+    Route::get('/banner', [CustomerController::class, 'indexBanner'], ['as', 'customer']);
+    Route::get('/produk', [CustomerController::class, 'indexProduk'], ['as', 'customer']);
+    Route::get('/produk/{produk}', [CustomerController::class, 'indexProdukShow'], ['as', 'customer']);
+    Route::get('/bayar', [CustomerController::class, 'indexBayar'], ['as', 'customer']);
+    Route::post('/pesanan', [PesananController::class, 'store'], ['as', 'customer'])->middleware(['auth:sanctum', 'checkrole:customer']);
+    Route::post('/upload-bukti-bayar', [PesananController::class, 'update'])->middleware(['auth:sanctum', 'checkrole:customer']);
+});
 
+Route::prefix('dashboard')->group(function () {
+    Route::resource('/users', UserController::class);
+    Route::resource('/banner', BannerController::class);
+    // Route::resource('/produk', ProdukController::class);
+    Route::post('/produk', [ProdukController::class, 'store']);
+    Route::get('/produk', [ProdukController::class, 'index']);
+    Route::get('/produk/all', [ProdukController::class, 'showAll']);
+    Route::get('/produk/{produk}', [ProdukController::class, 'show']);
+    Route::post('/produk/{produk}', [ProdukController::class, 'update']);
+    Route::delete('/produk/{produk}', [ProdukController::class, 'destroy']);
+    Route::resource('/bayar', BayarController::class);
+    Route::post('/bayar', [BayarController::class, 'store']);
+    Route::get('/bayar', [BayarController::class, 'index']);
+    Route::get('/bayar/{bayar}', [BayarController::class, 'show']);
+    Route::put('/bayar/{bayar}', [BayarController::class, 'update']);
+    Route::delete('/bayar/{bayar}', [BayarController::class, 'destroy']);
+    Route::get('/pesanan', [AdminController::class, 'index']);
+    Route::get('/pesanan/{pesanan}', [AdminController::class, 'show']);
+    Route::post('/ubah-status-pesanan', [AdminController::class, 'update']);
+    Route::get('/ubah-status-customer/{id}', [UserController::class, 'update']);
+});
+// Admin
